@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Ammonia MRV | ダッシュボード</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #e5e7eb;
+            overflow-x: hidden;
+            font-size: 13px;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #111111;
+            border-right: 1px solid #1f1f1f;
+            padding: 20px 0;
+            z-index: 1000;
+        }
+
+        .logo-section {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #1f1f1f;
+            margin-bottom: 20px;
+        }
+
+        .logo-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 4px;
+        }
+
+        .logo-subtitle {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            padding: 0 12px;
+            margin-bottom: 24px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 12px 8px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            color: #9ca3af;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .nav-item:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .nav-item.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .nav-icon {
+            width: 18px;
+            text-align: center;
+        }
+
+        /* トップバー */
+        .topbar {
+            position: fixed;
+            left: 240px;
+            top: 0;
+            right: 0;
+            height: 60px;
+            background: #111111;
+            border-bottom: 1px solid #1f1f1f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 999;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0a0a0a;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #1f1f1f;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-button {
+            background: #1a1a1a;
+            border: 1px solid #1f1f1f;
+            color: #9ca3af;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .topbar-button:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .topbar-button.primary {
+            background: #10b981;
+            border-color: #10b981;
+            color: #ffffff;
+        }
+
+        .topbar-button.primary:hover {
+            background: #059669;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
+            margin-left: 240px;
+            margin-top: 60px;
+            padding: 24px;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* KPIカード - 小さくコンパクトに */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: #111111;
+            border: 1px solid #1f1f1f;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .kpi-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+
+        .kpi-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .kpi-unit {
+            font-size: 10px;
+            color: #6b7280;
+            margin-left: 4px;
+        }
+
+        .kpi-change {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive {
+            color: #10b981;
+        }
+
+        .kpi-change.negative {
+            color: #ef4444;
+        }
+
+        /* グリッドレイアウト */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .panel {
+            background: #111111;
+            border: 1px solid #1f1f1f;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .panel.span-2 {
+            grid-column: span 2;
+        }
+
+        .panel.span-3 {
+            grid-column: span 3;
+        }
+
+        .panel-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .panel-tab {
+            padding: 4px 10px;
+            font-size: 11px;
+            color: #6b7280;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .panel-tab:hover {
+            color: #9ca3af;
+        }
+
+        .panel-tab.active {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .panel-body {
+            padding: 16px;
+        }
+
+        .panel-body.no-padding {
+            padding: 0;
+        }
+
+        /* チャート */
+        canvas {
+            width: 100%;
+            height: 220px;
+        }
+
+        /* テーブル */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: #0a0a0a;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #1f1f1f;
+        }
+
+        .data-table td {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #d1d5db;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .data-table tbody tr:hover {
+            background: #0f0f0f;
+        }
+
+        .table-cell-header {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .table-cell-mono {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        /* ステータスバッジ */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .badge.warning {
+            background: rgba(234, 179, 8, 0.15);
+            color: #eab308;
+        }
+
+        .badge.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .badge.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        /* プログレスバー */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #1f1f1f;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s;
+        }
+
+        /* メトリクスリスト */
+        .metrics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-name {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .metric-val {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* アラート */
+        .alert {
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert.warning {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            color: #eab308;
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        /* タイトルバナー */
+        .title-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0f0f0f 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeOut 0.5s ease 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                pointer-events: none;
+            }
+        }
+
+        .banner-logo {
+            font-size: 72px;
+            font-weight: 700;
+            color: #10b981;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+        }
+
+        .banner-subtitle {
+            font-size: 24px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+        }
+
+        .banner-tagline {
+            font-size: 16px;
+            color: #9ca3af;
+            margin-bottom: 40px;
+        }
+
+        .banner-loading {
+            width: 200px;
+            height: 3px;
+            background: #1f1f1f;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .banner-loading-bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #10b981, #059669);
+            animation: loadingBar 2s ease forwards;
+        }
+
+        @keyframes loadingBar {
+            to {
+                width: 100%;
+            }
+        }
+
+        /* アニメーション */
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .updating {
+            animation: slideIn 0.3s ease;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        .warning-blink {
+            animation: blink 0.8s infinite;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #111111;
+            border: 1px solid #1f1f1f;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #6b7280;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #1f1f1f;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 13px;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .form-checkbox input {
+            width: 16px;
+            height: 16px;
+        }
+
+        .form-checkbox label {
+            font-size: 13px;
+            color: #d1d5db;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-modal {
+            width: 100%;
+            height: 8px;
+            background: #1f1f1f;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill-modal {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 1400px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 60px;
+            }
+            
+            .main-content {
+                margin-left: 60px;
+            }
+            
+            .topbar {
+                left: 60px;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- タイトルバナー -->
+    <div class="title-banner" id="titleBanner">
+        <div class="banner-logo">Green Ammonia MRV</div>
+        <div class="banner-subtitle">Monitoring · Reporting · Verification</div>
+        <div class="banner-tagline">グリーンアンモニア製造・認証管理システム</div>
+        <div class="banner-loading">
+            <div class="banner-loading-bar"></div>
+        </div>
+    </div>
+
+    <!-- サイドバー -->
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo-title">GA-MRV System</div>
+            <div class="logo-subtitle">Green Ammonia</div>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">Main</div>
+            <a href="javascript:void(0)" class="nav-item active" data-page="dashboard">
+                <span class="nav-icon">■</span>
+                <span>ダッシュボード</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="production">
+                <span class="nav-icon">▤</span>
+                <span>製造管理</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="batch">
+                <span class="nav-icon">≡</span>
+                <span>バッチ管理</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">Monitoring</div>
+            <a href="javascript:void(0)" class="nav-item" data-page="realtime">
+                <span class="nav-icon">◐</span>
+                <span>リアルタイム</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="alerts">
+                <span class="nav-icon">◈</span>
+                <span>アラート</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="sensors">
+                <span class="nav-icon">⊙</span>
+                <span>センサー</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">Certification</div>
+            <a href="javascript:void(0)" class="nav-item" data-page="certification">
+                <span class="nav-icon">✓</span>
+                <span>認証管理</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="cfp">
+                <span class="nav-icon">⚡</span>
+                <span>CFP計算</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="traceability">
+                <span class="nav-icon">◉</span>
+                <span>トレーサビリティ</span>
+            </a>
+        </div>
+        
+        <div class="nav-section">
+            <div class="nav-label">Reports</div>
+            <a href="javascript:void(0)" class="nav-item" data-page="monthly">
+                <span class="nav-icon">⌗</span>
+                <span>月次レポート</span>
+            </a>
+            <a href="javascript:void(0)" class="nav-item" data-page="export">
+                <span class="nav-icon">⊞</span>
+                <span>データエクスポート</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- トップバー -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="topbar-title">ダッシュボード - 概要</div>
+            <div class="date-selector">
+                <span class="live-indicator"></span>
+                <span id="liveTime">2025/11/01 14:32 JST</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-button" onclick="alert('エクスポート機能は準備中です')">エクスポート</button>
+            <button class="topbar-button" onclick="alert('設定画面は準備中です')">設定</button>
+            <button class="topbar-button primary" id="generateReportBtn">レポート生成</button>
+        </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="main-content">
+        <!-- ダッシュボードページ -->
+        <div class="page-content" id="page-dashboard">
+        <!-- KPIカード -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">製造量 (今日)</div>
+                <div class="kpi-value"><span id="kpiToday">428</span><span class="kpi-unit">t</span></div>
+                <div class="kpi-change positive" id="kpiTodayChange">+12.3%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">製造量 (月次)</div>
+                <div class="kpi-value"><span id="kpiMonth">12.4K</span><span class="kpi-unit">t</span></div>
+                <div class="kpi-change positive">+18.2%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">CFP平均</div>
+                <div class="kpi-value"><span id="kpiCFP">0.078</span><span class="kpi-unit">kg</span></div>
+                <div class="kpi-change positive" id="kpiCFPChange">-5.2%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">認証率</div>
+                <div class="kpi-value"><span id="kpiCert">98.5</span><span class="kpi-unit">%</span></div>
+                <div class="kpi-change positive">+2.1%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">稼働率</div>
+                <div class="kpi-value"><span id="kpiUptime">94.2</span><span class="kpi-unit">%</span></div>
+                <div class="kpi-change positive" id="kpiUptimeChange">+3.8%</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">アラート</div>
+                <div class="kpi-value"><span id="kpiAlerts">3</span><span class="kpi-unit">件</span></div>
+                <div class="kpi-change negative">+2</div>
+            </div>
+        </div>
+
+        <!-- メインダッシュボードグリッド -->
+        <div class="dashboard-grid">
+            <!-- 製造量トレンド -->
+            <div class="panel span-2">
+                <div class="panel-header">
+                    <div class="panel-title">製造量トレンド</div>
+                    <div class="panel-controls">
+                        <button class="panel-tab">時間</button>
+                        <button class="panel-tab active">日</button>
+                        <button class="panel-tab">週</button>
+                        <button class="panel-tab">月</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <canvas id="productionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- プラント状態 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">プラント状態</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div class="metric-item">
+                            <span class="metric-name">電解槽 #1</span>
+                            <span class="metric-val" id="plant1">92.4%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">電解槽 #2</span>
+                            <span class="metric-val" id="plant2">96.1%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">合成炉 #1</span>
+                            <span class="metric-val" id="plant3">94.8%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">圧縮機</span>
+                            <span class="metric-val" id="plant4">89.3%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">貯蔵タンク</span>
+                            <span class="metric-val" id="plant5">78.2%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CFPトレンド -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">カーボンフットプリント</div>
+                    <div class="panel-controls">
+                        <button class="panel-tab active">日</button>
+                        <button class="panel-tab">週</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <canvas id="cfpChart"></canvas>
+                </div>
+            </div>
+
+            <!-- アラート -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">アクティブアラート</div>
+                </div>
+                <div class="panel-body">
+                    <div class="alert warning warning-blink">
+                        <span>⚠</span>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">CFP閾値超過</div>
+                            <div style="font-size: 11px; color: #9ca3af;">Batch GA-2025-112</div>
+                        </div>
+                    </div>
+                    <div class="alert info">
+                        <span>ℹ</span>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">メンテナンス予定</div>
+                            <div style="font-size: 11px; color: #9ca3af;">電解槽 #2 - 2025/11/05</div>
+                        </div>
+                    </div>
+                    <div class="alert warning warning-blink">
+                        <span>⚠</span>
+                        <div>
+                            <div style="font-weight: 600; margin-bottom: 4px;">センサー異常</div>
+                            <div style="font-size: 11px; color: #9ca3af;">圧力センサー P-204</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 認証進捗 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">認証進捗</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div style="margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span class="metric-name">今月認証完了</span>
+                                <span class="metric-val">28/32</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 87.5%"></div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span class="metric-name">審査待ち</span>
+                                <span class="metric-val">4バッチ</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 12.5%; background: #eab308;"></div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #1f1f1f;">
+                            <div class="metric-item">
+                                <span class="metric-name">平均認証時間</span>
+                                <span class="metric-val">2.3日</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- バッチ一覧 -->
+            <div class="panel span-3">
+                <div class="panel-header">
+                    <div class="panel-title">最近のバッチ</div>
+                    <div class="panel-controls">
+                        <button class="panel-tab active">全て</button>
+                        <button class="panel-tab">認証済</button>
+                        <button class="panel-tab">審査中</button>
+                    </div>
+                </div>
+                <div class="panel-body no-padding">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>バッチID</th>
+                                <th>製造日時</th>
+                                <th>数量 (t)</th>
+                                <th>CFP (kg-CO₂/kg-NH₃)</th>
+                                <th>H₂ソース</th>
+                                <th>ステータス</th>
+                                <th>認証ID</th>
+                                <th>備考</th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchTable">
+                            <!-- JavaScriptで生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- センサーデータ -->
+            <div class="panel span-2">
+                <div class="panel-header">
+                    <div class="panel-title">リアルタイムセンサーデータ</div>
+                    <div class="panel-controls">
+                        <button class="panel-tab active">更新中</button>
+                    </div>
+                </div>
+                <div class="panel-body no-padding">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>センサーID</th>
+                                <th>測定項目</th>
+                                <th>現在値</th>
+                                <th>単位</th>
+                                <th>ステータス</th>
+                                <th>最終更新</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensorTable">
+                            <!-- JavaScriptで生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 月次統計 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">月次統計</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div class="metric-item">
+                            <span class="metric-name">総製造量</span>
+                            <span class="metric-val">12,450 t</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">平均CFP</span>
+                            <span class="metric-val">0.078 kg</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">認証取得率</span>
+                            <span class="metric-val">98.5%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">稼働日数</span>
+                            <span class="metric-val">30/31日</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">H₂消費量</span>
+                            <span class="metric-val">2,210 t</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">電力消費量</span>
+                            <span class="metric-val">48.2 GWh</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div> <!-- End Dashboard Page -->
+
+        <!-- 製造管理ページ -->
+        <div class="page-content" id="page-production" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">製造管理</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">製造ライン稼働状況</div>
+                </div>
+                <div class="panel-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ライン</th>
+                                <th>ステータス</th>
+                                <th>稼働率</th>
+                                <th>今日の製造量</th>
+                                <th>目標達成率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-cell-header">製造ライン A</td>
+                                <td><span class="badge success">稼働中</span></td>
+                                <td>96.2%</td>
+                                <td>214 t</td>
+                                <td style="color: #10b981;">103%</td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell-header">製造ライン B</td>
+                                <td><span class="badge success">稼働中</span></td>
+                                <td>92.8%</td>
+                                <td>198 t</td>
+                                <td style="color: #10b981;">101%</td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell-header">製造ライン C</td>
+                                <td><span class="badge warning">メンテナンス</span></td>
+                                <td>0%</td>
+                                <td>0 t</td>
+                                <td style="color: #6b7280;">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- バッチ管理ページ -->
+        <div class="page-content" id="page-batch" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">バッチ管理</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">バッチ詳細情報</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div class="metric-item">
+                            <span class="metric-name">今月の総バッチ数</span>
+                            <span class="metric-val">156バッチ</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">平均バッチサイズ</span>
+                            <span class="metric-val">518 t</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">不合格バッチ</span>
+                            <span class="metric-val">2バッチ (1.3%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- リアルタイムページ -->
+        <div class="page-content" id="page-realtime" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">リアルタイムモニタリング</h2>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">現在の製造レート</div>
+                    <div class="kpi-value">42.3<span class="kpi-unit">t/h</span></div>
+                    <div class="kpi-change positive">正常</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">H₂消費レート</div>
+                    <div class="kpi-value">7.51<span class="kpi-unit">t/h</span></div>
+                    <div class="kpi-change positive">正常</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">電力消費</div>
+                    <div class="kpi-value">2.14<span class="kpi-unit">MW</span></div>
+                    <div class="kpi-change positive">正常</div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">プロセスフロー</div>
+                </div>
+                <div class="panel-body">
+                    <p style="color: #9ca3af;">プロセスフローの詳細データがここに表示されます</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- アラートページ -->
+        <div class="page-content" id="page-alerts" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">アラート管理</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">全アラート履歴</div>
+                </div>
+                <div class="panel-body no-padding">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日時</th>
+                                <th>レベル</th>
+                                <th>内容</th>
+                                <th>ステータス</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="table-cell-mono">2025-11-01 14:25</td>
+                                <td><span class="badge warning">警告</span></td>
+                                <td>CFP閾値超過 - Batch GA-2025-112</td>
+                                <td><span class="badge warning">対応中</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell-mono">2025-11-01 13:45</td>
+                                <td><span class="badge error">重大</span></td>
+                                <td>センサー異常 - 圧力センサー P-204</td>
+                                <td><span class="badge warning">対応中</span></td>
+                            </tr>
+                            <tr>
+                                <td class="table-cell-mono">2025-11-01 11:20</td>
+                                <td><span class="badge info">情報</span></td>
+                                <td>メンテナンス予定通知</td>
+                                <td><span class="badge success">確認済</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- センサーページ -->
+        <div class="page-content" id="page-sensors" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">センサー管理</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">センサー一覧</div>
+                </div>
+                <div class="panel-body">
+                    <p style="color: #9ca3af;">全センサーの詳細情報と較正履歴がここに表示されます</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 認証管理ページ -->
+        <div class="page-content" id="page-certification" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">認証管理</h2>
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">認証取得済</div>
+                    <div class="kpi-value">148<span class="kpi-unit">件</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">審査中</div>
+                    <div class="kpi-value">8<span class="kpi-unit">件</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">認証率</div>
+                    <div class="kpi-value">98.7<span class="kpi-unit">%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CFP計算ページ -->
+        <div class="page-content" id="page-cfp" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">カーボンフットプリント計算</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">CFP計算ツール</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div class="metric-item">
+                            <span class="metric-name">H₂製造時排出</span>
+                            <span class="metric-val">0.012 kg-CO₂/kg-NH₃</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">合成プロセス排出</span>
+                            <span class="metric-val">0.035 kg-CO₂/kg-NH₃</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">輸送時排出</span>
+                            <span class="metric-val">0.031 kg-CO₂/kg-NH₃</span>
+                        </div>
+                        <div style="padding-top: 16px; margin-top: 16px; border-top: 1px solid #1f1f1f;">
+                            <div class="metric-item">
+                                <span class="metric-name" style="font-weight: 600; color: #ffffff;">合計CFP</span>
+                                <span class="metric-val" style="color: #10b981;">0.078 kg-CO₂/kg-NH₃</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- トレーサビリティページ -->
+        <div class="page-content" id="page-traceability" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">トレーサビリティ</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">サプライチェーン追跡</div>
+                </div>
+                <div class="panel-body">
+                    <p style="color: #9ca3af;">バッチIDを入力してサプライチェーン全体を追跡できます</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 月次レポートページ -->
+        <div class="page-content" id="page-monthly" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">月次レポート</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">2025年10月レポート</div>
+                </div>
+                <div class="panel-body">
+                    <div class="metrics-list">
+                        <div class="metric-item">
+                            <span class="metric-name">総製造量</span>
+                            <span class="metric-val">12,450 t</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">平均CFP</span>
+                            <span class="metric-val">0.078 kg-CO₂/kg-NH₃</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">認証取得率</span>
+                            <span class="metric-val">98.5%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-name">プラント稼働率</span>
+                            <span class="metric-val">94.2%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- データエクスポートページ -->
+        <div class="page-content" id="page-export" style="display: none;">
+            <h2 style="font-size: 24px; margin-bottom: 24px;">データエクスポート</h2>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">エクスポート設定</div>
+                </div>
+                <div class="panel-body">
+                    <p style="color: #9ca3af; margin-bottom: 16px;">データ形式を選択してください</p>
+                    <button class="topbar-button" style="margin-right: 8px;">CSV形式</button>
+                    <button class="topbar-button" style="margin-right: 8px;">Excel形式</button>
+                    <button class="topbar-button">JSON形式</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- レポート生成モーダル -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">レポート生成</div>
+                <button class="modal-close" onclick="closeReportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">レポート種類</label>
+                    <select class="form-select" id="reportType">
+                        <option value="daily">日次レポート</option>
+                        <option value="weekly">週次レポート</option>
+                        <option value="monthly" selected>月次レポート</option>
+                        <option value="quarterly">四半期レポート</option>
+                        <option value="annual">年次レポート</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">対象期間</label>
+                    <select class="form-select" id="reportPeriod">
+                        <option value="2025-11">2025年11月</option>
+                        <option value="2025-10" selected>2025年10月</option>
+                        <option value="2025-09">2025年9月</option>
+                        <option value="2025-08">2025年8月</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">含める項目</label>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeProduction" checked>
+                        <label for="includeProduction">製造量データ</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeCFP" checked>
+                        <label for="includeCFP">カーボンフットプリント</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeCert" checked>
+                        <label for="includeCert">認証情報</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeSensor">
+                        <label for="includeSensor">センサーデータ詳細</label>
+                    </div>
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="includeAlerts">
+                        <label for="includeAlerts">アラート履歴</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">出力形式</label>
+                    <select class="form-select" id="reportFormat">
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel (XLSX)</option>
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+
+                <div class="progress-container" id="reportProgress" style="display: none;">
+                    <div class="progress-text">レポート生成中... <span id="progressPercent">0%</span></div>
+                    <div class="progress-bar-modal">
+                        <div class="progress-fill-modal" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="topbar-button" onclick="closeReportModal()">キャンセル</button>
+                <button class="topbar-button primary" onclick="generateReport()">生成開始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ページナビゲーション
+        const navItems = document.querySelectorAll('.nav-item');
+        const pageContents = document.querySelectorAll('.page-content');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageName = item.getAttribute('data-page');
+                
+                // ナビゲーションのアクティブ状態を更新
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // ページの表示/非表示を切り替え
+                pageContents.forEach(page => {
+                    if (page.id === `page-${pageName}`) {
+                        page.style.display = 'block';
+                        // フェードインアニメーション
+                        page.style.animation = 'fadeInUp 0.4s ease';
+                    } else {
+                        page.style.display = 'none';
+                    }
+                });
+                
+                // トップバーのタイトルを更新
+                const pageTitle = item.querySelector('span:last-child').textContent;
+                document.querySelector('.topbar-title').textContent = pageTitle;
+            });
+        });
+
+        // タイトルバナーを自動で非表示
+        setTimeout(() => {
+            const banner = document.getElementById('titleBanner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
+        }, 2500);
+
+        // リアルタイム時計
+        function updateClock() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/');
+            const timeStr = now.toLocaleTimeString('ja-JP');
+            document.getElementById('liveTime').textContent = `${dateStr} ${timeStr} JST`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // KPIのリアルタイム更新
+        let kpiData = {
+            today: 428,
+            cfp: 0.078,
+            uptime: 94.2
+        };
+
+        function updateKPIs() {
+            // 製造量を少しずつ増加
+            kpiData.today += Math.random() * 0.5;
+            document.getElementById('kpiToday').textContent = Math.floor(kpiData.today);
+            
+            // CFPを微調整
+            kpiData.cfp += (Math.random() - 0.5) * 0.001;
+            kpiData.cfp = Math.max(0.070, Math.min(0.085, kpiData.cfp));
+            document.getElementById('kpiCFP').textContent = kpiData.cfp.toFixed(3);
+            
+            // CFPの変化に応じて色を変更
+            const cfpChange = document.getElementById('kpiCFPChange');
+            if (kpiData.cfp < 0.078) {
+                cfpChange.className = 'kpi-change positive';
+                cfpChange.textContent = `-${((0.078 - kpiData.cfp) / 0.078 * 100).toFixed(1)}%`;
+            } else {
+                cfpChange.className = 'kpi-change negative';
+                cfpChange.textContent = `+${((kpiData.cfp - 0.078) / 0.078 * 100).toFixed(1)}%`;
+            }
+            
+            // 稼働率を微調整
+            kpiData.uptime += (Math.random() - 0.5) * 0.3;
+            kpiData.uptime = Math.max(88, Math.min(97, kpiData.uptime));
+            document.getElementById('kpiUptime').textContent = kpiData.uptime.toFixed(1);
+        }
+        setInterval(updateKPIs, 2000);
+
+        // プラント状態のリアルタイム更新
+        const plantData = [92.4, 96.1, 94.8, 89.3, 78.2];
+        
+        function updatePlantStatus() {
+            plantData.forEach((value, index) => {
+                const newValue = value + (Math.random() - 0.5) * 0.8;
+                plantData[index] = Math.max(75, Math.min(98, newValue));
+                const elem = document.getElementById(`plant${index + 1}`);
+                elem.textContent = plantData[index].toFixed(1) + '%';
+                elem.classList.add('updating');
+                setTimeout(() => elem.classList.remove('updating'), 300);
+            });
+        }
+        setInterval(updatePlantStatus, 3000);
+
+        // バッチデータ生成
+        const batches = [
+            { id: 'GA-2025-112', date: '2025-11-01 12:30', qty: 524, cfp: 0.082, h2: '太陽光', status: 'pending', cert: '-', note: '審査中' },
+            { id: 'GA-2025-111', date: '2025-11-01 08:15', qty: 512, cfp: 0.076, h2: '風力', status: 'certified', cert: 'GC-2025-1141', note: '' },
+            { id: 'GA-2025-110', date: '2025-10-31 18:45', qty: 528, cfp: 0.079, h2: '太陽光', status: 'certified', cert: 'GC-2025-1140', note: '' },
+            { id: 'GA-2025-109', date: '2025-10-31 14:20', qty: 515, cfp: 0.074, h2: '風力', status: 'certified', cert: 'GC-2025-1139', note: '' },
+            { id: 'GA-2025-108', date: '2025-10-31 09:50', qty: 521, cfp: 0.081, h2: '太陽光', status: 'certified', cert: 'GC-2025-1138', note: '' },
+            { id: 'GA-2025-107', date: '2025-10-30 16:30', qty: 518, cfp: 0.077, h2: '風力', status: 'certified', cert: 'GC-2025-1137', note: '' },
+        ];
+
+        function updateBatchTable() {
+            const tbody = document.getElementById('batchTable');
+            tbody.innerHTML = batches.map(b => `
+                <tr>
+                    <td class="table-cell-header">${b.id}</td>
+                    <td class="table-cell-mono">${b.date}</td>
+                    <td>${b.qty}</td>
+                    <td style="color: ${b.cfp < 0.08 ? '#10b981' : '#eab308'};">${b.cfp}</td>
+                    <td>${b.h2}</td>
+                    <td><span class="badge ${b.status === 'certified' ? 'success' : 'warning'}">${b.status === 'certified' ? '認証済' : '審査中'}</span></td>
+                    <td class="table-cell-mono">${b.cert}</td>
+                    <td style="color: #6b7280;">${b.note}</td>
+                </tr>
+            `).join('');
+        }
+
+        // センサーデータ生成とリアルタイム更新
+        const sensorConfigs = [
+            { id: 'T-101', name: '電解槽温度', unit: '°C', base: 450, range: 10, status: 'success' },
+            { id: 'P-204', name: '合成圧力', unit: 'MPa', base: 28, range: 2, status: 'warning' },
+            { id: 'F-305', name: 'H₂流量', unit: 'm³/h', base: 1200, range: 50, status: 'success' },
+            { id: 'F-306', name: 'N₂流量', unit: 'm³/h', base: 950, range: 30, status: 'success' },
+            { id: 'L-401', name: 'タンクレベル', unit: '%', base: 75, range: 10, status: 'success' },
+            { id: 'A-502', name: '電流値', unit: 'kA', base: 42, range: 5, status: 'success' },
+        ];
+
+        const sensorData = sensorConfigs.map(s => ({
+            ...s,
+            value: s.base + Math.random() * s.range
+        }));
+
+        function updateSensorTable() {
+            const tbody = document.getElementById('sensorTable');
+            const now = new Date().toLocaleTimeString('ja-JP');
+            
+            tbody.innerHTML = sensorData.map((s, index) => {
+                // ランダムウォークでセンサー値を更新
+                sensorData[index].value += (Math.random() - 0.5) * (s.range * 0.2);
+                sensorData[index].value = Math.max(s.base - s.range/2, Math.min(s.base + s.range/2, sensorData[index].value));
+                
+                const value = s.unit === 'm³/h' ? 
+                    sensorData[index].value.toFixed(0) : 
+                    sensorData[index].value.toFixed(1);
+                
+                return `
+                    <tr class="updating">
+                        <td class="table-cell-header">${s.id}</td>
+                        <td>${s.name}</td>
+                        <td style="font-weight: 600; color: #ffffff;">${value}</td>
+                        <td class="table-cell-mono">${s.unit}</td>
+                        <td><span class="badge ${s.status}">${s.status === 'success' ? '正常' : '要注意'}</span></td>
+                        <td class="table-cell-mono">${now}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        updateBatchTable();
+        updateSensorTable();
+        setInterval(updateSensorTable, 2000);
+
+        // 製造量チャート
+        const productionCanvas = document.getElementById('productionChart');
+        const productionCtx = productionCanvas.getContext('2d');
+        let productionData = [512, 528, 515, 521, 518, 524, 512];
+        const days = ['10/26', '10/27', '10/28', '10/29', '10/30', '10/31', '11/01'];
+
+        function drawProductionChart() {
+            const width = productionCanvas.width;
+            const height = productionCanvas.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            productionCtx.clearRect(0, 0, width, height);
+            
+            // グリッド
+            productionCtx.strokeStyle = '#1f1f1f';
+            productionCtx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                productionCtx.beginPath();
+                productionCtx.moveTo(padding, y);
+                productionCtx.lineTo(width - padding, y);
+                productionCtx.stroke();
+                
+                productionCtx.fillStyle = '#6b7280';
+                productionCtx.font = '10px Inter';
+                productionCtx.textAlign = 'right';
+                productionCtx.fillText((600 - i * 100) + '', padding - 8, y + 3);
+            }
+            
+            // X軸
+            days.forEach((day, i) => {
+                const x = padding + (chartWidth / (days.length - 1)) * i;
+                productionCtx.fillStyle = '#6b7280';
+                productionCtx.font = '10px Inter';
+                productionCtx.textAlign = 'center';
+                productionCtx.fillText(day, x, height - padding + 18);
+            });
+            
+            // エリア
+            const gradient = productionCtx.createLinearGradient(0, padding, 0, height - padding);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+            
+            productionCtx.fillStyle = gradient;
+            productionCtx.beginPath();
+            productionCtx.moveTo(padding, height - padding);
+            
+            productionData.forEach((value, i) => {
+                const x = padding + (chartWidth / (productionData.length - 1)) * i;
+                const y = height - padding - ((value - 400) / 200 * chartHeight);
+                productionCtx.lineTo(x, y);
+            });
+            
+            productionCtx.lineTo(width - padding, height - padding);
+            productionCtx.closePath();
+            productionCtx.fill();
+            
+            // ライン
+            productionCtx.strokeStyle = '#10b981';
+            productionCtx.lineWidth = 2;
+            productionCtx.beginPath();
+            
+            productionData.forEach((value, i) => {
+                const x = padding + (chartWidth / (productionData.length - 1)) * i;
+                const y = height - padding - ((value - 400) / 200 * chartHeight);
+                if (i === 0) productionCtx.moveTo(x, y);
+                else productionCtx.lineTo(x, y);
+            });
+            
+            productionCtx.stroke();
+            
+            // ポイント
+            productionData.forEach((value, i) => {
+                const x = padding + (chartWidth / (productionData.length - 1)) * i;
+                const y = height - padding - ((value - 400) / 200 * chartHeight);
+                
+                productionCtx.beginPath();
+                productionCtx.arc(x, y, 3, 0, Math.PI * 2);
+                productionCtx.fillStyle = '#10b981';
+                productionCtx.fill();
+            });
+        }
+
+        // グラフをリアルタイムで更新
+        function updateProductionData() {
+            // 最新のデータポイントを更新
+            productionData[productionData.length - 1] += (Math.random() - 0.5) * 10;
+            productionData[productionData.length - 1] = Math.max(480, Math.min(550, productionData[productionData.length - 1]));
+            drawProductionChart();
+        }
+        setInterval(updateProductionData, 3000);
+
+        // CFPチャート
+        const cfpCanvas = document.getElementById('cfpChart');
+        const cfpCtx = cfpCanvas.getContext('2d');
+        let cfpData = [0.082, 0.076, 0.079, 0.074, 0.081, 0.077, 0.078];
+
+        function drawCFPChart() {
+            const width = cfpCanvas.width;
+            const height = cfpCanvas.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            cfpCtx.clearRect(0, 0, width, height);
+            
+            // グリッド
+            cfpCtx.strokeStyle = '#1f1f1f';
+            cfpCtx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                cfpCtx.beginPath();
+                cfpCtx.moveTo(padding, y);
+                cfpCtx.lineTo(width - padding, y);
+                cfpCtx.stroke();
+                
+                cfpCtx.fillStyle = '#6b7280';
+                cfpCtx.font = '10px Inter';
+                cfpCtx.textAlign = 'right';
+                cfpCtx.fillText((0.10 - i * 0.02).toFixed(2), padding - 8, y + 3);
+            }
+            
+            // バー
+            cfpData.forEach((value, i) => {
+                const barWidth = chartWidth / cfpData.length * 0.6;
+                const x = padding + (chartWidth / cfpData.length) * i + (chartWidth / cfpData.length - barWidth) / 2;
+                const barHeight = ((value - 0.05) / 0.05) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                cfpCtx.fillStyle = value < 0.08 ? '#10b981' : '#eab308';
+                cfpCtx.fillRect(x, y, barWidth, barHeight);
+                
+                cfpCtx.fillStyle = '#6b7280';
+                cfpCtx.font = '9px Inter';
+                cfpCtx.textAlign = 'center';
+                cfpCtx.fillText(days[i], x + barWidth / 2, height - padding + 18);
+            });
+        }
+
+        // CFPグラフをリアルタイムで更新
+        function updateCFPData() {
+            cfpData[cfpData.length - 1] += (Math.random() - 0.5) * 0.002;
+            cfpData[cfpData.length - 1] = Math.max(0.070, Math.min(0.090, cfpData[cfpData.length - 1]));
+            drawCFPChart();
+        }
+        setInterval(updateCFPData, 4000);
+
+        function resizeCanvas() {
+            productionCanvas.width = productionCanvas.offsetWidth;
+            productionCanvas.height = 220;
+            cfpCanvas.width = cfpCanvas.offsetWidth;
+            cfpCanvas.height = 220;
+            
+            drawProductionChart();
+            drawCFPChart();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // レポート生成機能
+        document.getElementById('generateReportBtn').addEventListener('click', function() {
+            document.getElementById('reportModal').classList.add('show');
+        });
+
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('show');
+            document.getElementById('reportProgress').style.display = 'none';
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reportPeriod = document.getElementById('reportPeriod').value;
+            const reportFormat = document.getElementById('reportFormat').value;
+            
+            // プログレスバーを表示
+            const progressContainer = document.getElementById('reportProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            progressContainer.style.display = 'block';
+            
+            // 生成プロセスをシミュレート
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15 + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    setTimeout(() => {
+                        // レポート生成完了
+                        const reportTypeText = {
+                            'daily': '日次',
+                            'weekly': '週次',
+                            'monthly': '月次',
+                            'quarterly': '四半期',
+                            'annual': '年次'
+                        }[reportType];
+                        
+                        const formatText = {
+                            'pdf': 'PDF',
+                            'excel': 'Excel',
+                            'csv': 'CSV',
+                            'json': 'JSON'
+                        }[reportFormat];
+                        
+                        alert(`${reportTypeText}レポートの生成が完了しました！\n\n期間: ${reportPeriod}\n形式: ${formatText}\n\nファイルがダウンロードされます。`);
+                        
+                        // モーダルを閉じる
+                        closeReportModal();
+                    }, 500);
+                }
+                
+                progressBar.style.width = progress + '%';
+                progressPercent.textContent = Math.round(progress) + '%';
+            }, 200);
+        }
+
+        // モーダル外クリックで閉じる
+        document.getElementById('reportModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReportModal();
+            }
+        });
+    </script>
+</body>
+</html>
